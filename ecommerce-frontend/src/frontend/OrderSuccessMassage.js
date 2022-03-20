@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function OrderSuccessMassage() {
   return (
@@ -10,7 +11,7 @@ export default function OrderSuccessMassage() {
             <p>Aww yeah, you successfully place your order.</p>
             <hr/>
             <div className="mb-0 d-grid gap-2 col-7 mx-auto">
-                <a className="btn btn-primary" href="/">Continue Shopping <i className="fas fa-play"></i></a>
+                <Link className="btn btn-info" to="/">Continue Shopping <i className="fas fa-play"></i></Link>
             </div>
         </div>
     </div>

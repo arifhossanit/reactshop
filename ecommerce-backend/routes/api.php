@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\backend\ProductManageController;
 use App\Http\Controllers\backend\AdminController;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,17 +29,19 @@ Route::get('/logout', function () {
     return view('pages/login');
 });
 
-Route::view('/register','pages.register');
+// Route::view('/register','pages.register');
 Route::post('/register', [UserController::class,'register']);
 Route::view('/user_login','pages.login');
 Route::post('/user_login', [UserController::class,'login']);
+
 Route::get('/', [ProductController::class,'index']);
 Route::get('detail/{id}', [ProductController::class,'detail']);
-Route::get('search', [ProductController::class,'search']);
+Route::get('search/{query}', [ProductController::class,'search']);
 Route::post('add_to_cart', [ProductController::class,'addToCart']);
-Route::get('/cartlist', [ProductController::class,'cartList']);
-Route::get('/removeitem/{id}', [ProductController::class,'removeCart']);
-Route::get('/checkout', [ProductController::class,'checkOut']);
+Route::get('/cartitem/{id}', [ProductController::class,'cartItem']);
+Route::get('/cartlist/{id}', [ProductController::class,'cartList']);
+Route::delete('/removeitem/{id}', [ProductController::class,'removeCart']);
+Route::get('/checkout/{id}', [ProductController::class,'checkOut']);
 Route::post('/orderplace', [ProductController::class,'orderPlace']);
 Route::view('/about','pages.about');
 Route::view('/contact','pages.contact');

@@ -12,27 +12,28 @@ class ProductController extends Controller
 {
     function index()
     {
-        $data= Product::paginate(12);
+        $data= Product::all();
         // print_r(compact('data'));
-        return view('pages/product', compact('data'));
+        return $data;
     }
     function detail($id)
     {
         $data= Product::find($id);
-        return view('pages/detail', ['product'=>$data]);
+        // return view('pages/detail', ['product'=>$data]);
+        return $data;
     }
-    function search(Request $req)
+    function search($query)
     {
-        $query=$req->input('query');
         $data=Product::where('name', 'like', '%'.$query.'%')->get();
-        return view('pages/search', compact('data','query'));
+        // return view('pages/search', compact('data','query'));
+        return $data;
     }
     function addToCart(Request $req)
     {
-        if ($req->session()->has('user')) {
+        if ($req->userId) {
 
-            $user_id = $req->session()->get('user')['id'];
-            $product_id = $req->product_id;
+            $user_id = $req->userId;
+            $product_id = $req->productId;
             $qty = $req->qty;
 
             $cart = Cart::updateOrCreate(
@@ -43,26 +44,28 @@ class ProductController extends Controller
             // $cart->user_id = $req->session()->get('user')['id'];
             // $cart->product_id = $req->product_id;
             // $cart->save();
-            return redirect('/');
+            return $cart;
         }
         else {
-            return view('pages/login');
+            return response([
+                'error'=>['fail to cart']
+            ]);
         }
     }
-    function cartItem()
+    function cartItem($id)
     {
-        $user_id = Session::get('user')['id'];
+        $user_id = $id;
         return Cart::where('user_id',$user_id)->sum('qty');
     }
-    function cartList()
+    function cartList($id)
     {
-        if (Session::has('user')) {
-            $user_id=Session::get('user')['id'];
+        if ($id) {
+            $user_id=$id;
             $data=Cart::join('products','cart.product_id','=','products.id')
                         ->select('products.*','cart.id As cart_id','cart.qty')
                         ->where('cart.user_id',$user_id)
                         ->get();
-            return view('pages/cartlist',compact('data'));
+            return $data;
         }
         else 
         {
@@ -71,22 +74,23 @@ class ProductController extends Controller
     }
     function removeCart($id)
     {
-        Cart::destroy($id);
-        return redirect('/cartlist');
+        $res=Cart::destroy($id);
+        return $res;
     }
-    function checkOut()
+    function checkOut($id)
     {
-        $user_id=Session::get('user')['id'];
+        $user_id=$id;
         $data=Cart::join('products','cart.product_id','=','products.id')
                     ->where('cart.user_id','=', $user_id)
                     ->select('products.*','cart.id As cart_id','cart.qty')
                     ->get();
                     // dd($total);
-        return view('pages/checkout',compact('data'));
+        return $data;
     }
+
     function orderPlace(Request $req)
     {
-        $user_id=Session::get('user')['id'];
+        $user_id=$req->userId;
         $all_cart=Cart::where('user_id',$user_id)->get();
         foreach ($all_cart as $cart) {
             $order=new Order;
@@ -101,11 +105,16 @@ class ProductController extends Controller
         }
         if ($saved) {
             Cart::where('user_id',$user_id)->delete();
-            $req->session()->flash('message', 'Your order place, Successfully!');
-            return redirect('/orderstatus');
+            // $req->session()->flash('message', 'Your order place, Successfully!');
+            return $saved;
         }else {
-            $req->session()->flash('message', 'Something wrong, please try again!');
-            return redirect('/checkout');
+            // $req->session()->flash('message', 'Something wrong, please try again!');
+            return response([
+                'error'=>['fail to cart']
+            ]);
         }
+        return response([
+            'error'=>['fail to cart']
+        ]);
     }
 }

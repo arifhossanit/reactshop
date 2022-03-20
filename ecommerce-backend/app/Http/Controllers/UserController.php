@@ -14,11 +14,13 @@ class UserController extends Controller
         // print_r($user);
         if ($user && Hash::check($req->password, $user->password)) 
         {
-            $req->session()->put('user', $user);
-            return redirect('/');
+            // $req->session()->put('user', $user);
+            return response()->json($user);
         }
         else{
-            return redirect('/user_login');
+            return response([
+                'error'=>['Email or password not match']
+            ]);
         }
     }
     function register(Request $req)
@@ -39,6 +41,7 @@ class UserController extends Controller
         $user->password=Hash::make($req->password);
         $user->save();
         // print_r($user);
-        return redirect('/user_login')->with('status', 'Registration successful! Please login.');
+        // return redirect('/user_login')->with('status', 'Registration successful! Please login.');
+        return $user;
     }
 }
